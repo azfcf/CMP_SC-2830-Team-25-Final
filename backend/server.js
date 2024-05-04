@@ -167,7 +167,7 @@ app.post('/auth', async (req, res) => {
 })
 
 app.get('/game/game-passage', (req, res) => {
-    pool.query('SELECT passage FROM texts ORDER BY RAND() LIMIT 1;', [], (err, result) => {
+    pool.query('SELECT * FROM texts ORDER BY RAND() LIMIT 1;', [], (err, result) => {
         if(err) {
             console.log(err)
             res.status(500).json({ error: "Cannot get passage from database"});
@@ -194,18 +194,22 @@ app.get('/api/scores/recent', (req, res) => {
     })
 });
 
-app.get('/api/receive-score', (req, res) => {
+app.post('/api/send-score', (req, res) => {
+    console.log(Object.values(req.body.score))
     new Promise((resolve) => {
-        pool.query('SELECT password FROM users WHERE username = ?', [req.body.user.username], (err, result) => {
+        pool.query('INSERT INTO scores (user_id, text_id, wpm, accuracy, date_submitted) VALUES (?, ?, ?, ?, ?)', Object.values(req.body.score), (err, result) => {
+            console.log(err);
+            console.log(result);
+            
             if(err) {
                 res.status(500).send();
             } else {
-
+                res.status(200).send();
             }
         })
         resolve(res)
     })
-})
+});
 
 // Open the server
 app.listen(serverPort, () => {

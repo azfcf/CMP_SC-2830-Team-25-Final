@@ -5,10 +5,11 @@ import './home.css';
 
 function GameView(props) {
     const currentUser = props.currentUser;
+    const currentUserId = props.currentUserId;
     return (
         <div id="game">
             <p>Currently logged in as {currentUser}. <Link class='link' to='/'>Log out</Link></p>
-            <GameHandler />
+            <GameHandler currentUser={currentUser} currentUserId={currentUserId} />
         </div>
     )
 }
@@ -73,6 +74,7 @@ class GameHandler extends React.Component {
             isTyping: false,
             currentText: '',
             passageText: '',
+            passageID: '',
             lastTypedPosition: 0,
             charactersTyped: 0,
             correctCharactersTyped: 0,
@@ -88,10 +90,13 @@ class GameHandler extends React.Component {
     //new Date().toISOString().slice(0, 19).replace('T', ' ')
     getPassage = event => {
         axios.get('http://localhost:3001/game/game-passage').then((data) => {
-            this.setState({passageText: data.data})
+            var response = data.data[0]
+            this.setState({passageText: response[1]})
+            this.setState({passageID: response[0]})
             this.setState({isPlaying: true})
         })  
     }
+
     handleChange = event => {
         if(!this.state.isTyping) {
             this.setState({isTyping: true})
@@ -111,9 +116,6 @@ class GameHandler extends React.Component {
                 let endTime = new Date().toISOString()
                 this.setState({endTime: endTime})
                 this.setState({isComplete: true})
-
-                let date1 = Date.parse(this.state.startTime)
-                let date2 = Date.parse(endTime)
             }
         } else {
             this.setState({typingError: true})
@@ -123,14 +125,25 @@ class GameHandler extends React.Component {
             } 
         }
     }
+    componentDidUpdate(prevState, prevProps) {
+        if(this.state.isComplete) {
+            const score = {
+                user_id: this.props.currentUserId,
+                text_id: this.state.passageID,
+                wpm: (this.state.passageText + '').length / 5 * (60 / ((Date.parse(this.state.endTime) - Date.parse(this.state.startTime)) / 1000)),
+                accuracy: this.state.correctCharactersTyped / this.state.charactersTyped,
+                date_submitted: this.state.endTime.slice(0, 19).replace('T', ' ')
+            }
 
-    // sendScore() {
-    //     useEffect(() => {
-    //         const score = {
-
-    //         }
-    //     }, [this.state.isComplete])
-    // }
+            axios.post('http://localhost:3001/api/send-score', { score })
+            .then(res => {
+                console.log("Score submitted")
+            })
+            .catch(error => {
+                console.log(error);
+            })
+        }
+    }
 
     componentDidMount() {
         this.interval = setInterval(() => {
@@ -154,7 +167,7 @@ class GameHandler extends React.Component {
                     <textarea value={this.state.currentText} onChange={this.handleChange} disabled={this.state.isComplete}>
                     </textarea>
                     {this.state.typingError ? <div><p id="error">ERROR</p></div> : ''}
-                    <p>{this.state.wpm ? Math.round(this.state.wpm) : 0} WPM, {Math.round((1 - this.state.errorCount / this.state.charactersTyped) * 100)}% accuracy ({this.state.errorCount} errors)</p>
+                    <p>{this.state.wpm ? Math.round(this.state.wpm) : 0} WPM, {Math.round(this.state.correctCharactersTyped/this.state.charactersTyped * 100)}% accuracy ({this.state.errorCount} errors)</p>
                 </div>
                 : <button onClick={this.getPassage}>Play!</button>}
             </div>
