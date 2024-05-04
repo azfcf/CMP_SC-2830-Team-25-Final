@@ -2,8 +2,6 @@ import React from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-const bcrypt = require('bcryptjs')
-
 class RegisterForm extends React.Component {
     constructor(props) {
         super(props);
@@ -12,8 +10,8 @@ class RegisterForm extends React.Component {
             email:    '',
             password: '',
             confirmPassword: '',
+            loginErrors: []
         };
-
     }
 
     // Update the state with the current value of the input
@@ -24,31 +22,27 @@ class RegisterForm extends React.Component {
     handleSubmit = event => {
         event.preventDefault();
 
-        if(this.state.password === this.state.confirmPassword) {
-            // Hash the password before sending the request
-            const hashedPassword = bcrypt.hashSync(this.state.password, 10);
+        const user = {
+            username:        this.state.username,
+            email:           this.state.email,
+            password:        this.state.password,
+            confirmPassword: this.state.confirmPassword
+        };
 
-            const user = {
-                name:     this.state.username,
-                email:    this.state.email,
-                password: hashedPassword
-            };
+        // TODO: REMOVE THIS DEBUG PRINT
+        console.log(user)
 
-            // TODO: REMOVE THIS DEBUG PRINT
-            console.log(user)
-
-            axios.post('http://localhost:3001/auth/register', {user})
-            .then(res => {
-                // TODO: implement login logic
-                console.log(res);
-                console.log(res.data);
-            })
-            .catch(error => {
-                console.log(error);
-            })
-        } else {
-            document.getElementById('confirmPassword').setCustomValidity('Passwords must match');
-        }
+        axios.post('http://localhost:3001/auth/register', {user})
+        .then(res => {
+            // TODO: implement login logic
+            console.log(res);
+            console.log(res.data);
+        })
+        .catch(error => {
+            this.setState({loginErrors: error.response.data.errors})
+            console.log(this.loginErrors)
+            console.log(error);
+        })
     }
 
     render() {
@@ -56,7 +50,11 @@ class RegisterForm extends React.Component {
             <div className='registerContainer'>
                 <h2>Create a new account</h2>
                 <form onSubmit={this.handleSubmit} id='registrationForm'>
-
+                <div>
+                    {this.state.loginErrors.map(item => (
+                        <p class="loginError">{item.msg}</p>
+                    ))}
+                </div>
                 <section>
                     <label htmlFor='username'>Username: </label>
                     <br/>
@@ -75,14 +73,13 @@ class RegisterForm extends React.Component {
                     <label htmlFor='email'>Email: </label>
                     <br/>
                     <input
-                        type='email'
+                        type='text'
                         id='email'
                         name='email'
                         placeholder='Email'
                         value={this.state.value}
                         onChange={this.handleChange}
                         autoComplete='email'
-                        pattern='^[^@\s]+@[^@\s]+\.[^@\s]+$'
                         required/>
                 </section>
 
@@ -97,7 +94,6 @@ class RegisterForm extends React.Component {
                     value={this.state.value}
                     onChange={this.handleChange}
                     autoComplete='new-password'
-                    minLength='8'
                     required
                 />
                 </section>
@@ -113,7 +109,6 @@ class RegisterForm extends React.Component {
                     value={this.state.value}
                     onChange={this.handleChange}
                     autoComplete='new-password'
-                    minLength='8'
                     required
                 />
                 </section>
