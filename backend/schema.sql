@@ -1,0 +1,29 @@
+CREATE DATABASE typinggame;
+
+USE typinggame;
+
+CREATE TABLE users (
+    id INT NOT NULL UNIQUE AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL,
+    password BINARY(60) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE texts(
+    id INT NOT NULL UNIQUE AUTO_INCREMENT,
+    passage VARCHAR(4000) CHARACTER SET UTF8MB4,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE scores(
+    id INT NOT NULL UNIQUE AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    text_id INT NOT NULL,
+    cpm DOUBLE NOT NULL,
+    accuracy DOUBLE NOT NULL,
+    date_submitted DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE,
+    FOREIGN KEY (text_id) REFERENCES texts(id) ON UPDATE CASCADE
+);
