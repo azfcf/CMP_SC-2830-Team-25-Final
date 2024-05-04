@@ -1,60 +1,94 @@
 import React from 'react';
+import axios from 'axios';
 import './home.css';
 
-function Game() {
-  return (
-    <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <h1>Typing Game</h1>
-    <div id="game">
-      <p>Put game stuff here</p>
-    </div>
-    <div id="leaderboard">
-      <h2>Your top 10 scores</h2> {/* top scores specifically for the user that is logged in */} 
-      <ol type="1">
-        {/* make these interact with the database - I just have this in now as a placeholder */}
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-      </ol>
-      <h2>Top 10 scores all-time</h2>
-      <ol type="1">
-        {/* make these interact with the database - I just have this in now as a placeholder */}
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-      </ol>
-      <h2>Most recent scores</h2>
-      <ol type="1">
-        {/* make these interact with the database - I just have this in now as a placeholder */}
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-      </ol>
-    </div>
-  </body>
-  )
+class GameView extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        return (
+        <div>
+            <noscript>You need to enable JavaScript to run this app.</noscript>
+            <h1>Typing Game</h1>
+            <div id="game">
+                <p>Put game stuff here</p>
+            </div>
+            <div id="leaderboard">
+                <h2>Your top 10 scores</h2> {/* top scores specifically for the user that is logged in */} 
+                <ol type="1">
+                {/* make these interact with the database - I just have this in now as a placeholder */}
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                </ol>
+                <h2>Top 10 scores all-time</h2>
+                <ol type="1">
+                {/* make these interact with the database - I just have this in now as a placeholder */}
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                </ol>
+                <h2>Most recent scores</h2>
+                <ol type="1">
+                {/* make these interact with the database - I just have this in now as a placeholder */}
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                <li>Username: Score</li>
+                </ol>
+            </div>
+        </div>
+        )
+    }
+}
+
+function Game(props) {
+    var isLoggedIn = false;
+
+    function authenticate() {
+        const headers = {
+            'X-Auth': localStorage.getItem('token')
+        }
+
+        axios.post('http://localhost:3001/auth', null, { headers: headers })
+        .then(res => {
+            console.log("Authenticated successfully");
+            isLoggedIn = true;
+            
+        })
+        .catch(error => {
+            console.log(error);
+            window.location.href = '/'
+        })
+    }
+
+    authenticate()
+
+    return (
+        <GameView>{isLoggedIn}</GameView>
+    )
 }
 
 export default Game;

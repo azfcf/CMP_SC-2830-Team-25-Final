@@ -1,5 +1,5 @@
 const mysql = require('mysql2')
-
+const jwt = require("jwt-simple");
 const cors = require('cors');
 const express = require('express');
 const bcrypt = require('bcrypt');
@@ -19,6 +19,8 @@ const corsOptions = {
     origin: 'http://localhost:3000',
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
+
+const secret = 'somestring'; // Change later
 
 app.use(cors(corsOptions));
 
@@ -66,7 +68,6 @@ const registerValidator = [
             })
         })
         .then(res => {
-            console.log(res);
             if(res.length != 0) {
                 throw new Error("Username is already taken.");
             } else {
@@ -80,23 +81,29 @@ const registerValidator = [
     })
 ]
 
+const loginValidator = [
+    body('user.username', 'Username field cannot be empty.').not().isEmpty(),
+    body('user.password', 'Password field cannot be empty.').not().isEmpty(),
+]
+
 app.post('/auth/register', registerValidator, async (req, res) => {
-    //console.log(req)
     const errors = validationResult(req)
     if (errors.isEmpty()) {
         const user = req.body.user
         
         await new Promise((resolve) => {
+            // Hash the password and attempt to insert the user info into the database
             bcrypt.hash(user.password, 16).then(hash => {
-                console.log(hash)
                 pool.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
                        [user.username, user.email, hash], (err, result) => {
                 if (err) {
-                    console.log(err)
-                    res.status(400).send()
+                    console.log(err);
+                    res.status(400).send();
                 }
-                res.status(200).send()
-                resolve(res)
+
+                // If no errors, send 200 OK
+                res.status(200).send();
+                resolve(res);
                 })
             })
             
@@ -105,6 +112,58 @@ app.post('/auth/register', registerValidator, async (req, res) => {
         res.status(422).json({errors: errors.array()})
     }
 });
+
+
+app.post('/auth/login', loginValidator, async (req, res) => {
+    const errors = validationResult(req);
+    
+    if(errors.isEmpty) {
+        new Promise((resolve) => {
+            pool.query('SELECT password FROM users WHERE username = ?', [req.body.user.username], (err, result) => {
+                if(err) {
+                    console.log('no user found')
+                    res.status(422).send();
+                } else {
+                    if(result.lengh > 1) {
+                        res.status(500).send();
+                    }
+                    bcrypt.compare(req.body.user.password, result.toString(), function(err, result) {
+                        if(err) {
+                            res.status(401).send();
+                        }
+                        if(result) {
+                            const token = jwt.encode({ username: req.body.user.username }, secret);
+                            res.status(200).json({ token: token });
+                        } else {
+                            res.status(401).send();
+                        }
+                    })
+                }
+            })
+            resolve(res)
+        })
+        
+    } else {
+        res.status(422).json({errors: errors.array()})
+    }
+});
+
+app.post('/auth', async (req, res) => {
+    console.log(req.headers)
+    if(!req.headers["x-auth"]) {
+        console.log("not found");
+        return res.status(401).send();
+    } 
+
+    const token = req.headers["x-auth"];
+    try {
+        const decoded = jwt.decode(token, secret);
+        res.send(200);
+    } catch (err) {
+        console.log(err);
+        res.status(401).send();
+    }
+})
 
 // Open the server
 app.listen(serverPort, () => {

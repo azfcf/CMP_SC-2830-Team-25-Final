@@ -34,13 +34,10 @@ class RegisterForm extends React.Component {
         // Send the POST request
         axios.post('http://localhost:3001/auth/register', {user})
         .then(res => {
-            console.log(res);
             this.setState({registerSuccessful: true})
         })
         .catch(error => {
             this.setState({loginErrors: error.response.data.errors})
-            console.log(this.loginErrors)
-            console.log(error);
         })
     }
 
