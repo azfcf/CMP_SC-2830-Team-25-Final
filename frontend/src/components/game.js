@@ -14,6 +14,8 @@ function GameView(props) {
 
 function LeaderboardView(props) {
     const currentUser = props.currentUser;
+    const currentUserId = props.currentUserId;
+
     return (
         <div id="leaderboard">
             <h2>Your top 10 scores</h2> {/* top scores specifically for the user that is logged in */} 
@@ -111,9 +113,6 @@ class GameHandler extends React.Component {
 
                 let date1 = Date.parse(this.state.startTime)
                 let date2 = Date.parse(endTime)
-
-                this.setState({wpm: (((this.state.passageText + '').length + 1) / 5) * (60/((date2 - date1)/1000))})
-
             }
         } else {
             this.setState({typingError: true})
@@ -123,6 +122,14 @@ class GameHandler extends React.Component {
             } 
         }
     }
+
+    // sendScore() {
+    //     useEffect(() => {
+    //         const score = {
+
+    //         }
+    //     }, [this.state.isComplete])
+    // }
 
     componentDidMount() {
         this.interval = setInterval(() => {
@@ -139,7 +146,7 @@ class GameHandler extends React.Component {
 
         return (
             <div>
-                {/* If the player is currently playing, then display the text area and the prompt */}
+                {/* If the player is currentlya playing, then display the text area and the prompt */}
                 { this.state.isPlaying ? <div>
                     <p>WPM: {this.state.wpm ? Math.round(this.state.wpm) : 0}</p>
                     <p>{this.state.startTime}</p>
@@ -159,6 +166,7 @@ class GameHandler extends React.Component {
 function Game() {
     const [isLoggedIn, setIsLoggedIn] = useState('');
     const [currentUser, setCurrentUser] = useState('');
+    const [currentUserId, setCurrentUserId] = useState('');
 
     function authenticate() {
         setIsLoggedIn(false);
@@ -171,6 +179,7 @@ function Game() {
             console.log("Authenticated successfully");
             setIsLoggedIn(true);
             setCurrentUser(res.data['username'])
+            setCurrentUserId(res.data['id'])
         })
         .catch(error => {
             console.log(error);
@@ -187,7 +196,7 @@ function Game() {
             <noscript>You need to enable JavaScript to run this app.</noscript>
             <h1>Typing Game</h1>
             <div>
-            {isLoggedIn && <GameView currentUser={currentUser}/>}
+            {isLoggedIn && <GameView currentUser={currentUser} currentUserId={currentUserId} />}
             {isLoggedIn && <LeaderboardView />}
             </div>
         </div>

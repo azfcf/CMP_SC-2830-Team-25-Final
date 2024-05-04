@@ -115,20 +115,26 @@ app.post('/auth/login', loginValidator, async (req, res) => {
     
     if(errors.isEmpty) {
         new Promise((resolve) => {
-            pool.query('SELECT password FROM users WHERE username = ?', [req.body.user.username], (err, result) => {
+            pool.query('SELECT id, password FROM users WHERE username = ?', [req.body.user.username], (err, result) => {
                 if(err) {
                     console.log('no user found')
                     res.status(422).send();
                 } else {
+                    var hashed_pass = result[0][1]
+                    var uid = result[0][0]
+
                     if(result.lengh > 1) {
                         res.status(500).send();
                     }
-                    bcrypt.compare(req.body.user.password, result.toString(), function(err, result) {
+                    bcrypt.compare(req.body.user.password, hashed_pass.toString(), function(err, result) {
+                        console.log(err)
+                        console.log(result)
+
                         if(err) {
                             res.status(401).send();
                         }
                         if(result) {
-                            const token = jwt.encode({ username: req.body.user.username }, secret);
+                            const token = jwt.encode({ username: req.body.user.username, id: uid }, secret);
                             res.status(200).json({ token: token });
                         } else {
                             res.status(401).send();
@@ -168,6 +174,36 @@ app.get('/game/game-passage', (req, res) => {
         } if(result) {
             res.send(result)
         }
+    })
+})
+
+app.get('/api/scores/recent', (req, res) => {
+    pool.query(`
+        SELECT users.username, scores.wpm, scores.accuracy, scores.date_submitted
+        FROM scores
+        JOIN users ON scores.user_id = users.id
+        ORDER BY scores.date_submitted DESC
+        LIMIT 10;`,
+    [], (err, result) => {
+        if (err) {
+            console.error('Error fetching recent scores:', err);
+            res.status(500).json({error:'Internal Server Error'});
+            return;
+        }
+        res.json(result);
+    })
+});
+
+app.get('/api/receive-score', (req, res) => {
+    new Promise((resolve) => {
+        pool.query('SELECT password FROM users WHERE username = ?', [req.body.user.username], (err, result) => {
+            if(err) {
+                res.status(500).send();
+            } else {
+
+            }
+        })
+        resolve(res)
     })
 })
 

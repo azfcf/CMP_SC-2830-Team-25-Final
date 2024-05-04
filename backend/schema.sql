@@ -20,7 +20,7 @@ CREATE TABLE scores(
     id INT NOT NULL UNIQUE AUTO_INCREMENT,
     user_id INT NOT NULL,
     text_id INT NOT NULL,
-    cpm DOUBLE NOT NULL,
+    wpm DOUBLE NOT NULL,
     accuracy DOUBLE NOT NULL,
     date_submitted DATETIME NOT NULL,
     PRIMARY KEY (id),
