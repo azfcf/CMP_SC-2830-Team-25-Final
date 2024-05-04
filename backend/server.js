@@ -40,6 +40,7 @@ app.get('/', (res) => {
     res.send('Hello world!');
 })
 
+// Validate the registration info.
 const registerValidator = [
     body('user.username', 'Username field cannot be empty.').not().isEmpty(),
     body('user.username', 'Username must be between 2 and 40 characters long.').isLength({min: 2, max: 40}),
@@ -48,7 +49,7 @@ const registerValidator = [
     body('user.email', 'Email field cannot be empty.').not().isEmpty(),
     body('user.email', 'Email must be a valid email address.').isEmail(),
     body('user.password', 'Password field cannot be empty.').not().isEmpty(),
-    body('user.password', 'Password must be between 8 and 72 characters in length').isLength({min: 8, max: 72}),
+    body('user.password', 'Password must be between 8 and 72 characters in length.').isLength({min: 8, max: 72}),
     
     // Check if the password is the same as the confirm password field
     body('user.password').custom((value, {req}) => {
@@ -59,9 +60,9 @@ const registerValidator = [
     }),
     // Check if the username is already taken
     body('user.username').custom(async(value, {req}) => {
-        members = await new Promise((resolve) => {
+        await new Promise((resolve) => {
             pool.query('SELECT * FROM users WHERE username = ?', [value], (err, res) => {
-                resolve(res)
+                resolve(res);
             })
         })
         .then(res => {
@@ -71,6 +72,10 @@ const registerValidator = [
             } else {
                 return true;
             }
+        })
+        .catch(error => {
+            console.log(error);
+            throw error;
         });
     })
 ]
@@ -79,17 +84,26 @@ app.post('/auth/register', registerValidator, async (req, res) => {
     //console.log(req)
     const errors = validationResult(req)
     if (errors.isEmpty()) {
-
-        // TODO: Implement register function
-        const hashedPassword = bcrypt.hashSync(req.user.password, 10);
-        res.send(req.body)
+        const user = req.body.user
+        
+        await new Promise((resolve) => {
+            bcrypt.hash(user.password, 16).then(hash => {
+                console.log(hash)
+                pool.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+                       [user.username, user.email, hash], (err, result) => {
+                if (err) {
+                    console.log(err)
+                    res.status(400).send()
+                }
+                res.status(200).send()
+                resolve(res)
+                })
+            })
+            
+        })
+    } else {
+        res.status(422).json({errors: errors.array()})
     }
-    res.status(422).json({errors: errors.array()})
-
-
-
-    
-    
 });
 
 // Open the server

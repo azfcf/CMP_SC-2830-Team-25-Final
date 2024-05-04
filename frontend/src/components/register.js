@@ -10,6 +10,7 @@ class RegisterForm extends React.Component {
             email:    '',
             password: '',
             confirmPassword: '',
+            registerSuccessful: false,
             loginErrors: []
         };
     }
@@ -20,6 +21,7 @@ class RegisterForm extends React.Component {
     }
     
     handleSubmit = event => {
+        this.setState({loginErrors: []})
         event.preventDefault();
 
         const user = {
@@ -29,14 +31,11 @@ class RegisterForm extends React.Component {
             confirmPassword: this.state.confirmPassword
         };
 
-        // TODO: REMOVE THIS DEBUG PRINT
-        console.log(user)
-
+        // Send the POST request
         axios.post('http://localhost:3001/auth/register', {user})
         .then(res => {
-            // TODO: implement login logic
             console.log(res);
-            console.log(res.data);
+            this.setState({registerSuccessful: true})
         })
         .catch(error => {
             this.setState({loginErrors: error.response.data.errors})
@@ -51,6 +50,7 @@ class RegisterForm extends React.Component {
                 <h2>Create a new account</h2>
                 <form onSubmit={this.handleSubmit} id='registrationForm'>
                 <div>
+                    {this.state.registerSuccessful ? <p class='registerSuccessful'>Registration successful! <Link class='link' to='/'>Click here</Link> to go to the login page.</p> : ''}
                     {this.state.loginErrors.map(item => (
                         <p class="loginError">{item.msg}</p>
                     ))}
@@ -114,6 +114,7 @@ class RegisterForm extends React.Component {
                 </section>
 
                 <button type='submit'>Create Account</button>
+                
             </form>
         </div>
         )
