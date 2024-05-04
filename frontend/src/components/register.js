@@ -10,6 +10,7 @@ class RegisterForm extends React.Component {
             username: '',
             email:    '',
             password: '',
+            confirmPassword: '',
         };
 
     }
@@ -21,24 +22,29 @@ class RegisterForm extends React.Component {
     
     handleSubmit = event => {
         event.preventDefault();
-        
-        // Hash the password before sending the request
-        const hashedPassword = bcrypt.hashSync(this.state.password, 10);
 
-        const user = {
-            name:     this.state.username,
-            email:    this.state.email,
-            password: hashedPassword
-        };
+        if(this.state.password == this.state.confirmPassword) {
+            // Hash the password before sending the request
+            const hashedPassword = bcrypt.hashSync(this.state.password, 10);
 
-        // TODO: REMOVE THIS DEBUG PRINT
-        console.log(user)
+            const user = {
+                name:     this.state.username,
+                email:    this.state.email,
+                password: hashedPassword
+            };
 
-        axios.post('http://localhost:3001/auth/register', {user})
-        .then(res => {
-            console.log(res);
-            console.log(res.data);
-        })
+            // TODO: REMOVE THIS DEBUG PRINT
+            console.log(user)
+
+            axios.post('http://localhost:3001/auth/register', {user})
+            .then(res => {
+                // TODO: implement login logic
+                console.log(res);
+                console.log(res.data);
+            })
+        } else {
+            document.getElementById('confirmPassword').setCustomValidity('Passwords must match');
+        }
     }
 
     render() {
@@ -47,8 +53,10 @@ class RegisterForm extends React.Component {
 
             <section>
                 <label htmlFor='username'>Username: </label>
+                <br/>
                 <input
                     type='text'
+                    id='text'
                     name='username'
                     placeholder='Username'
                     value={this.state.value}
@@ -59,8 +67,10 @@ class RegisterForm extends React.Component {
 
             <section>
                 <label htmlFor='email'>Email: </label>
+                <br/>
                 <input
                     type='email'
+                    id='email'
                     name='email'
                     placeholder='Email'
                     value={this.state.value}
@@ -72,9 +82,27 @@ class RegisterForm extends React.Component {
 
             <section>
             <label htmlFor='password'>Password: </label>
+            <br/>
             <input
                 type='password'
+                id='password'
                 name='password'
+                placeholder='Password'
+                value={this.state.value}
+                onChange={this.handleChange}
+                autoComplete='new-password'
+                minLength='8'
+                required
+            />
+            </section>
+
+            <section>
+            <label htmlFor='confirmPassword'>Confirm Password: </label>
+            <br/>
+            <input
+                type='password'
+                id='confirmPassword'
+                name='confirmPassword'
                 placeholder='Password'
                 value={this.state.value}
                 onChange={this.handleChange}
@@ -91,10 +119,9 @@ class RegisterForm extends React.Component {
 }
 
 function Register() {
-
     return (
         <div className='register-container'>
-            <h1>Create an Account:</h1>
+            <h2>Create a new account</h2>
             <RegisterForm />
         </div>
     );
