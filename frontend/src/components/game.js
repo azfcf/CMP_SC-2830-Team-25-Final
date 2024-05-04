@@ -7,7 +7,7 @@ function GameView(props) {
     return (
         <div id="game">
             <p>currently logged in as {currentUser}</p>
-            <p>Put game stuff here</p>
+            <GameHandler />
         </div>
     )
 }
@@ -61,6 +61,100 @@ function LeaderboardView(props) {
         </div>
     )
 }
+
+class GameHandler extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isPlaying: false,
+            isTyping: false,
+            currentText: '',
+            passageText: '',
+            lastTypedPosition: 0,
+            charactersTyped: 0,
+            correctCharactersTyped: 0,
+            typingError: false,
+            currentTime: '',
+            errorCount: 0,
+            startTime: '',
+            endTime: '',
+            wpm: 0.0,
+            isComplete: false
+        }
+    }
+    //new Date().toISOString().slice(0, 19).replace('T', ' ')
+    getPassage = event => {
+        axios.get('http://localhost:3001/game/game-passage').then((data) => {
+            this.setState({passageText: data.data})
+            this.setState({isPlaying: true})
+        })  
+    }
+    handleChange = event => {
+        if(!this.state.isTyping) {
+            this.setState({isTyping: true})
+            this.setState({startTime: new Date().toISOString()})
+        }
+
+        const currentPos = event.target.value.length
+        this.setState({currentText: event.target.value, lastTypedPosition: currentPos})
+        
+        var compareString = (this.state.passageText + '').slice(0, currentPos);
+        if(compareString == event.target.value) {
+            this.setState({typingError: false})
+            this.setState({charactersTyped: this.state.charactersTyped + 1})
+            this.setState({correctCharactersTyped: this.state.correctCharactersTyped + 1})
+
+            if((this.state.passageText + '').length == currentPos) {
+                let endTime = new Date().toISOString()
+                this.setState({endTime: endTime})
+                this.setState({isComplete: true})
+
+                let date1 = Date.parse(this.state.startTime)
+                let date2 = Date.parse(endTime)
+
+                this.setState({wpm: (((this.state.passageText + '').length + 1) / 5) * (60/((date2 - date1)/1000))})
+
+            }
+        } else {
+            this.setState({typingError: true})
+            if(this.state.lastTypedPosition < currentPos) {
+                this.setState({errorCount: this.state.errorCount + 1})
+                this.setState({charactersTyped: this.state.charactersTyped + 1})
+            } 
+        }
+    }
+
+    componentDidMount() {
+        this.interval = setInterval(() => {
+            if(!this.state.isComplete) {
+                this.setState({wpm: this.state.correctCharactersTyped/5 * (60 / ((new Date() - Date.parse(this.state.startTime)) / 1000))})
+            }
+        }, 1000)
+    }
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+    
+    render() {
+
+        return (
+            <div>
+                {/* If the player is currently playing, then display the text area and the prompt */}
+                { this.state.isPlaying ? <div>
+                    <p>WPM: {this.state.wpm ? Math.round(this.state.wpm) : 0}</p>
+                    <p>{this.state.startTime}</p>
+                    <p>{this.state.passageText}</p> 
+                    {this.state.typingError ? <div><p>ERROR</p></div> : ''}
+                    <p>Errors: {this.state.errorCount}</p>
+                    <p>Accuracy: {(1 - this.state.errorCount / this.state.charactersTyped) * 100}</p>
+                    <textarea value={this.state.currentText} onChange={this.handleChange} disabled={this.state.isComplete}>
+                    </textarea>
+                </div>
+                : <button onClick={this.getPassage}>Play!</button>}
+            </div>
+        )
+    }
+}   
 
 function Game() {
     const [isLoggedIn, setIsLoggedIn] = useState('');

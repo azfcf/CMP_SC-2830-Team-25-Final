@@ -38,10 +38,6 @@ const pool = mysql.createPool({
     queueLimit: 0
 })
 
-app.get('/', (res) => {
-    res.send('Hello world!');
-})
-
 // Validate the registration info.
 const registerValidator = [
     body('user.username', 'Username field cannot be empty.').not().isEmpty(),
@@ -162,6 +158,17 @@ app.post('/auth', async (req, res) => {
         console.log(err);
         res.status(401).send();
     }
+})
+
+app.get('/game/game-passage', (req, res) => {
+    pool.query('SELECT passage FROM texts ORDER BY RAND() LIMIT 1;', [], (err, result) => {
+        if(err) {
+            console.log(err)
+            res.status(500).json({ error: "Cannot get passage from database"});
+        } if(result) {
+            res.send(result)
+        }
+    })
 })
 
 // Open the server
