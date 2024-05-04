@@ -6,10 +6,6 @@ import AppRouter from './router'
 
 import reportWebVitals from './reportWebVitals';
 
-// TODO: Temporary link, delete this
-import Login from './components/login'
-import Register from './components/register'
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
