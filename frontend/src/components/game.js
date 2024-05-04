@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import './home.css';
 
 function GameView(props) {
     const currentUser = props.currentUser;
     return (
         <div id="game">
-            <p>currently logged in as {currentUser}</p>
+            <p>Currently logged in as {currentUser}. <Link class='link' to='/'>Log out</Link></p>
             <GameHandler />
         </div>
     )
@@ -138,17 +139,15 @@ class GameHandler extends React.Component {
     render() {
 
         return (
-            <div>
+            <div class="box">
                 {/* If the player is currently playing, then display the text area and the prompt */}
                 { this.state.isPlaying ? <div>
-                    <p>WPM: {this.state.wpm ? Math.round(this.state.wpm) : 0}</p>
-                    <p>{this.state.startTime}</p>
-                    <p>{this.state.passageText}</p> 
-                    {this.state.typingError ? <div><p>ERROR</p></div> : ''}
-                    <p>Errors: {this.state.errorCount}</p>
-                    <p>Accuracy: {(1 - this.state.errorCount / this.state.charactersTyped) * 100}</p>
+                    <p>Text to type:<br/>
+                        <span id="passage">{this.state.passageText}</span></p> 
                     <textarea value={this.state.currentText} onChange={this.handleChange} disabled={this.state.isComplete}>
                     </textarea>
+                    {this.state.typingError ? <div><p id="error">ERROR</p></div> : ''}
+                    <p>{this.state.wpm ? Math.round(this.state.wpm) : 0} WPM, {Math.round((1 - this.state.errorCount / this.state.charactersTyped) * 100)}% accuracy ({this.state.errorCount} errors)</p>
                 </div>
                 : <button onClick={this.getPassage}>Play!</button>}
             </div>
