@@ -149,7 +149,6 @@ app.post('/auth/login', loginValidator, async (req, res) => {
 });
 
 app.post('/auth', async (req, res) => {
-    console.log(req.headers)
     if(!req.headers["x-auth"]) {
         console.log("not found");
         return res.status(401).send();
@@ -158,7 +157,7 @@ app.post('/auth', async (req, res) => {
     const token = req.headers["x-auth"];
     try {
         const decoded = jwt.decode(token, secret);
-        res.send(200);
+        res.status(200).json(decoded)
     } catch (err) {
         console.log(err);
         res.status(401).send();
