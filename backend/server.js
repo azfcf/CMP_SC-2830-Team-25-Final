@@ -36,41 +36,6 @@ const pool = mysql.createPool({
     queueLimit: 0
 })
 
-const getConnection = function(callback) {
-    pool.getConnection(function(err, connection) {
-        callback(err, connection);
-    });
-};
-// // Create the database connection
-// const conn = mysql.createConnection({
-//     host:     'localhost',
-//     user:     'root',
-//     password: 'root', 
-//     database: 'typinggame', // subject to change
-//     port:     databasePort,
-//     rowsAsArray: true
-// });
-
-// // Attempt to connect to the database
-// conn.connect(function(err) {
-//     if (err) {
-//         console.log('Error connecting to MySQL:', err);
-//     }
-//     else {
-//         console.log('Connection established');
-//     }
-// });
-
-function findByUsername(username) {
-    conn.query('SELECT * FROM users WHERE username = ?', [username], function(err, result) {
-        if(err) {
-            
-        }
-    })
-
-    return result;
-}
-
 app.get('/', (res) => {
     res.send('Hello world!');
 })
@@ -85,12 +50,14 @@ const registerValidator = [
     body('user.password', 'Password field cannot be empty.').not().isEmpty(),
     body('user.password', 'Password must be between 8 and 72 characters in length').isLength({min: 8, max: 72}),
     
+    // Check if the password is the same as the confirm password field
     body('user.password').custom((value, {req}) => {
         if(value !== req.body.user.confirmPassword) {
             throw new Error("Passwords must match.")
         } 
         return true;
     }),
+    // Check if the username is already taken
     body('user.username').custom(async(value, {req}) => {
         members = await new Promise((resolve) => {
             pool.query('SELECT * FROM users WHERE username = ?', [value], (err, res) => {
