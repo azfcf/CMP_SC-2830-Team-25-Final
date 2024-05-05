@@ -47,7 +47,7 @@ class Leaderboard extends React.Component {
                 <ol type='1'>
 
                     {this.state.scores.map(item => (
-                        <li>Username: {item[0]}: WPM: {Math.round(item[1])}</li>
+                        <li>{item[0]} - {Math.round(item[1])} WPM</li>
                     ))}
                 </ol>
             </>
