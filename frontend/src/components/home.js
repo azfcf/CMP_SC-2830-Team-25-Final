@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import Register from './register';
 import Login from './login';
+import Leaderboard from './scores'
 import './home.css';
 
 function Home() {
@@ -20,34 +20,8 @@ function Home() {
       </div>
     </div>
     <div id='leaderboard'>
-      <h2>Top 10 scores all-time</h2>
-      <ol type='1'>
-        {/* make these interact with the database - I just have this in now as a placeholder */}
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-      </ol>
-      <h2>Most recent scores</h2>
-      <ol type='1'>
-        {/* make these interact with the database - I just have this in now as a placeholder */}
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-        <li>Username: Score</li>
-      </ol>
+        <Leaderboard label='Top 10 scores all-time' leaderboardType='top' />
+        <Leaderboard label='Most recent scores' leaderboardType='recent'/>
     </div>
   </body>
 
