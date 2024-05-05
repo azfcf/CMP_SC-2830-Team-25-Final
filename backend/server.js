@@ -4,7 +4,6 @@ const cors = require('cors');
 const express = require('express');
 const bcrypt = require('bcrypt');
 const { body, validationResult } = require('express-validator')
-const passport = require('passport')
 
 const app = express()
 
