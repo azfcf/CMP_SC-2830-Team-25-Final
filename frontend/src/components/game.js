@@ -4,11 +4,16 @@ import { Link } from 'react-router-dom';
 import './home.css';
 
 function GameView(props) {
+
+    function deleteToken() {
+        localStorage.removeItem("token");
+    }
+
     const currentUser = props.currentUser;
     const currentUserId = props.currentUserId;
     return (
         <div id="game">
-            <p>Currently logged in as {currentUser}. <Link class='link' to='/'>Log out</Link></p>
+            <p>Currently logged in as {currentUser}. <Link class='link' to='/' onClick={deleteToken}>Log out</Link></p>
             <GameHandler currentUser={currentUser} currentUserId={currentUserId} />
         </div>
     )
