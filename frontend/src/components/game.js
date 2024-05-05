@@ -79,7 +79,6 @@ class GameHandler extends React.Component {
             charactersTyped: 0,
             correctCharactersTyped: 0,
             typingError: false,
-            currentTime: '',
             errorCount: 0,
             startTime: '',
             endTime: '',
@@ -90,6 +89,7 @@ class GameHandler extends React.Component {
     //new Date().toISOString().slice(0, 19).replace('T', ' ')
     getPassage = event => {
         axios.get('http://localhost:3001/game/game-passage').then((data) => {
+            console.log("new passage")
             var response = data.data[0]
             this.setState({passageText: response[1]})
             this.setState({passageID: response[0]})
@@ -126,12 +126,14 @@ class GameHandler extends React.Component {
         }
     }
     componentDidUpdate(prevState, prevProps) {
+        
         if(this.state.isComplete) {
+            console.log(`DONE \n ${this.state.passageText}\n${this.state.endTime}\n${this.state.startTime}`)
             const score = {
                 user_id: this.props.currentUserId,
                 text_id: this.state.passageID,
                 wpm: (this.state.passageText + '').length / 5 * (60 / ((Date.parse(this.state.endTime) - Date.parse(this.state.startTime)) / 1000)),
-                accuracy: this.state.correctCharactersTyped / this.state.charactersTyped,
+                accuracy: (this.state.correctCharactersTyped / this.state.charactersTyped),
                 date_submitted: this.state.endTime.slice(0, 19).replace('T', ' ')
             }
 
@@ -143,6 +145,23 @@ class GameHandler extends React.Component {
                 console.log(error);
             })
         }
+    }
+
+    newGame = event => {
+        this.getPassage();
+        this.setState({
+            isTyping: false,
+            currentText: '',
+            lastTypedPosition: 0,
+            charactersTyped: 0,
+            correctCharactersTyped: 0,
+            typingError: false,
+            errorCount: 0,
+            startTime: '',
+            endTime: '',
+            wpm: 0.0,
+            isComplete: false
+        })
     }
 
     componentDidMount() {
@@ -168,6 +187,7 @@ class GameHandler extends React.Component {
                     </textarea>
                     {this.state.typingError ? <div><p id="error">ERROR</p></div> : ''}
                     <p>{this.state.wpm ? Math.round(this.state.wpm) : 0} WPM, {Math.round(this.state.correctCharactersTyped/this.state.charactersTyped * 100)}% accuracy ({this.state.errorCount} errors)</p>
+                    {this.state.isComplete ? <button onClick={this.newGame}>Play again</button> : ''}
                 </div>
                 : <button onClick={this.getPassage}>Play!</button>}
             </div>
