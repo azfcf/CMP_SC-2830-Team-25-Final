@@ -179,12 +179,47 @@ app.get('/game/game-passage', (req, res) => {
 
 app.get('/api/scores/recent', (req, res) => {
     pool.query(`
-        SELECT users.username, scores.wpm, scores.accuracy, scores.date_submitted
+        SELECT users.username, scores.wpm
         FROM scores
         JOIN users ON scores.user_id = users.id
         ORDER BY scores.date_submitted DESC
         LIMIT 10;`,
     [], (err, result) => {
+        if (err) {
+            console.error('Error fetching recent scores:', err);
+            res.status(500).json({error:'Internal Server Error'});
+            return;
+        }
+        res.json(result);
+    })
+});
+
+app.get('/api/scores/top', (req, res) => {
+    pool.query(`
+        SELECT users.username, scores.wpm
+        FROM scores
+        JOIN users ON scores.user_id = users.id
+        ORDER BY scores.wpm DESC
+        LIMIT 10;`,
+    [], (err, result) => {
+        if (err) {
+            console.error('Error fetching recent scores:', err);
+            res.status(500).json({error:'Internal Server Error'});
+            return;
+        }
+        res.json(result);
+    })
+});
+
+app.get('/api/scores/user', (req, res) => {
+    pool.query(`
+        SELECT users.username, scores.wpm
+        FROM scores
+        JOIN users ON scores.user_id = users.id
+        WHERE scores.user_id = ?
+        ORDER BY scores.wpm DESC
+        LIMIT 10;`,
+    [req.query.id], (err, result) => {
         if (err) {
             console.error('Error fetching recent scores:', err);
             res.status(500).json({error:'Internal Server Error'});

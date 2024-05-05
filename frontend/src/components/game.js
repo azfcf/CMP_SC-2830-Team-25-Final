@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './home.css';
+import Leaderboard from './scores';
 
 function GameView(props) {
 
@@ -20,53 +21,13 @@ function GameView(props) {
 }
 
 function LeaderboardView(props) {
-    const currentUser = props.currentUser;
     const currentUserId = props.currentUserId;
 
     return (
         <div id="leaderboard">
-            <h2>Your top 10 scores</h2> {/* top scores specifically for the user that is logged in */} 
-            <ol type="1">
-                {/* make these interact with the database - I just have this in now as a placeholder */}
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-            </ol>
-            <h2>Top 10 scores all-time</h2>
-            <ol type="1">
-                {/* make these interact with the database - I just have this in now as a placeholder */}
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-            </ol>
-            <h2>Most recent scores</h2>
-            <ol type="1">
-                {/* make these interact with the database - I just have this in now as a placeholder */}
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-                <li>Username: Score</li>
-            </ol>
+            <Leaderboard userId={currentUserId} label='Your top 10 scores' leaderboardType='user' />
+            <Leaderboard label='Top 10 scores all-time' leaderboardType='top' />
+            <Leaderboard label='Most recent scores' leaderboardType='recent'/>
         </div>
     )
 }
@@ -234,7 +195,7 @@ function Game() {
             <h1>Typing Game</h1>
             <div>
             {isLoggedIn && <GameView currentUser={currentUser} currentUserId={currentUserId} />}
-            {isLoggedIn && <LeaderboardView />}
+            {isLoggedIn && <LeaderboardView currentUserId={currentUserId} />}
             </div>
         </div>
     )
