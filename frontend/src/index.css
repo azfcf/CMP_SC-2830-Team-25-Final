@@ -52,15 +52,9 @@ a:hover {
   float: left;
 }
 
-#login {
+#middle {
   text-align: center;
   width: 60%;
-  float: left;
-}
-
-#game {
-  text-align: center;
-  width: 80%;
   float: left;
 }
 

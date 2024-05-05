@@ -13,9 +13,12 @@ function GameView(props) {
     const currentUser = props.currentUser;
     const currentUserId = props.currentUserId;
     return (
-        <div id="game">
-            <p>Currently logged in as {currentUser}. <Link class='link' to='/' onClick={deleteToken}>Log out</Link></p>
-            <GameHandler currentUser={currentUser} currentUserId={currentUserId} />
+        <div>
+            <div id="leftside"><br/></div>
+            <div id="middle">
+                <p>Currently logged in as {currentUser}. <Link class='link' to='/' onClick={deleteToken}>Log out</Link></p>
+                <GameHandler currentUser={currentUser} currentUserId={currentUserId} />
+            </div>
         </div>
     )
 }

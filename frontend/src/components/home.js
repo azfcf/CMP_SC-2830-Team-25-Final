@@ -12,7 +12,7 @@ function Home() {
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <h1>Typing Game</h1>
     <div id='leftside'><br/></div> {/* to shift over the login view in the middle so it's centered */}
-    <div id='login'>
+    <div id='middle'>
       <h2>Log in</h2>
       <p>Please log in or <Link class='link' to='/register'>create an account</Link> to continue.</p>
       <div class='box'>
