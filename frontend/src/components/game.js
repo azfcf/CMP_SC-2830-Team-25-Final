@@ -98,7 +98,7 @@ class GameHandler extends React.Component {
             const score = {
                 user_id: this.props.currentUserId,
                 text_id: this.state.passageID,
-                wpm: (this.state.passageText + '').length / 5 * (60 / ((Date.parse(this.state.endTime) - Date.parse(this.state.startTime)) / 1000)),
+                wpm: this.state.wpm,
                 accuracy: (this.state.correctCharactersTyped / this.state.charactersTyped),
                 date_submitted: this.state.endTime.slice(0, 19).replace('T', ' ')
             }
