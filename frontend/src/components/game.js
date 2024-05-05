@@ -152,7 +152,7 @@ class GameHandler extends React.Component {
                     <textarea value={this.state.currentText} onChange={this.handleChange} disabled={this.state.isComplete}>
                     </textarea>
                     {this.state.typingError ? <div><p id="error">ERROR</p></div> : ''}
-                    <p>{this.state.wpm ? Math.round(this.state.wpm) : 0} WPM, {Math.round(this.state.correctCharactersTyped/this.state.charactersTyped * 100)}% accuracy ({this.state.errorCount} errors)</p>
+                    <p>{this.state.wpm ? Math.round(this.state.wpm) : 0} WPM, {Math.round(this.state.correctCharactersTyped/this.state.charactersTyped * 100)}% accuracy ({this.state.errorCount} error{(this.state.errorCount != 1) ? 's' : ''})</p>
                     {this.state.isComplete ? <button onClick={this.newGame}>Play again</button> : ''}
                 </div>
                 : <button onClick={this.getPassage}>Play!</button>}
